@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools >= 65","wheel","setuptools_scm[toml]"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "iceflow_try"
+#version = "0.0.1"
+dependencies = ["numpy","matplotlib"]
+authors = [{ name="Name", email="author@unil.ch" }]
+description = "Non-linear ice flow solver"
+readme = "README.md"
+requires-python = ">=3.8"
+dynamic = ["version"]
+
+[tool.setuptools_scm]
+version_scheme = "no-guess-dev"
+write_to = "src/iceflow_try/_version.py"
+
+[project.scripts]
+hello_world = "iceflow_try.solver:hello_world"
