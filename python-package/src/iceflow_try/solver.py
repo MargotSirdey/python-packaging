@@ -4,29 +4,6 @@ import numpy as np
 from . import tools
 
 
-def hello_world():
-    print("Hello world !")
-
-
-def av(A):
-    return 0.25 * (A[:-1, :-1] + A[:-1, 1:] + A[1:, :-1] + A[1:, 1:])
-
-
-def avx(A):
-    return 0.5 * (A[:-1, :] + A[1:, :])
-
-
-def avy(A):
-    return 0.5 * (A[:, :-1] + A[:, 1:])
-
-
-def compute_D(D, H, S, dSdx, dSdy, Snorm, a1, a2, dx, dy):
-    dSdx = np.diff(S, axis=0) / dx
-    dSdy = np.diff(S, axis=1) / dy
-    Snorm = np.sqrt(avy(dSdx) ** 2 + avx(dSdy) ** 2)
-    D[:] = ((a1 * av(H) ** 5) + (a2 * av(H) ** 3)) * Snorm**2
-
-
 def iceflow_solver(m_balance_slope, m_balance_limiter, mean_height, data):
     # physics
     ρg = 910.0 * 9.81    # ice density x gravity
@@ -57,9 +34,9 @@ def iceflow_solver(m_balance_slope, m_balance_limiter, mean_height, data):
         np.copyto(H0, H)
         S = B + H
         M = np.minimum(m_balance_slope * (S - ELA), m_balance_limiter)
-        compute_D(D, H, S, dSdx, dSdy, Snorm, a1, a2, data.dx, data.dy)
-        qx[:] = avy(D) * np.diff(S[:, 1:-1], axis=0) / data.dx
-        qy[:] = avx(D) * np.diff(S[1:-1, :], axis=1) / data.dy
+        tools.compute_D(D, H, S, dSdx, dSdy, Snorm, a1, a2, data.dx, data.dy)
+        qx[:] = tools.avy(D) * np.diff(S[:, 1:-1], axis=0) / data.dx
+        qy[:] = tools.avx(D) * np.diff(S[1:-1, :], axis=1) / data.dy
         H[1:-1, 1:-1] = np.maximum(H[1:-1, 1:-1] + dt * (np.diff(qx, axis=0) + np.diff(qy, axis=1) + M[1:-1, 1:-1]), 0.0)
         if it % nout == 0:
             # error checking

@@ -1,5 +1,3 @@
-import matplotlib.pyplot as plt
-import matplotlib as mpl
 import numpy as np
 
 # Wrapper class for data grid resolutions `nx, ny`
@@ -25,27 +23,22 @@ def bedrock_elevation(data, mean_height):
 def eq_line_altitude(data):
     return 2150 + 900 * np.arctan(data.Yc / data.ly)
 
-"""
-    visualise(H, S, B, xc, yc)
 
-Visualise bedrock and ice elevation.
-"""
-def visualise(H, S, B, xc, yc):
-    S_v = np.copy(S)
-    S_v[H <= 0.01] = np.nan
-    fig = plt.figure(figsize=(100, 45))
-    axs = fig.add_subplot(121, projection='3d')
-    axs.set_xlabel("x [km]")
-    axs.set_ylabel("y [km]")
-    axs.set_zlabel("elevation [m]")
-    xic, yic = np.meshgrid(xc, yc)
-    axs.set_box_aspect((4, 4, 1))
-    axs.view_init(azim=25)
-    p1 = axs.plot_surface(xic / 1e3, yic / 1e3, B, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
-    p2 = axs.plot_surface(xic / 1e3, yic / 1e3, S_v, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
-    norm = mpl.colors.Normalize(vmin=0, vmax=6000)
-    fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap='viridis'),
-             ax=axs, orientation='vertical', label='H ice [m]', shrink=0.5)
+def av(A):
+    return 0.25 * (A[:-1, :-1] + A[:-1, 1:] + A[1:, :-1] + A[1:, 1:])
 
-    plt.tight_layout()
-    plt.show()
+
+def avx(A):
+    return 0.5 * (A[:-1, :] + A[1:, :])
+
+
+def avy(A):
+    return 0.5 * (A[:, :-1] + A[:, 1:])
+
+
+# TODO, some parameter are not used
+def compute_D(D, H, S, dSdx, dSdy, Snorm, a1, a2, dx, dy):
+    dSdx = np.diff(S, axis=0) / dx
+    dSdy = np.diff(S, axis=1) / dy
+    Snorm = np.sqrt(avy(dSdx) ** 2 + avx(dSdy) ** 2)
+    D[:] = ((a1 * av(H) ** 5) + (a2 * av(H) ** 3)) * Snorm**2
