@@ -3,7 +3,7 @@ import matplotlib as mpl
 import numpy as np
 from . import tools
 
-def iceflow_solver(m_balance_slope, m_balance_limiter, mean_height, data):
+def solver(m_balance_slope, m_balance_limiter, mean_height, data):
     # physics
     ρg = 910.0 * 9.81    # ice density x gravity
     dt = 0.1             # time step [yr]
