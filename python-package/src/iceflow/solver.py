@@ -3,7 +3,9 @@ import matplotlib as mpl
 import numpy as np
 from . import tools
 
-
+"""
+Iterative solver
+"""
 def solver(m_balance_slope, m_balance_limiter, mean_height, data):
     # physics
     ρg = 910.0 * 9.81    # ice density x gravity
@@ -19,16 +21,16 @@ def solver(m_balance_slope, m_balance_limiter, mean_height, data):
     a1 = 1.9e-24 * pow(ρg,3) * 31557600
     a2 = 5.7e-20 * pow(ρg,3) * 31557600
     # initialise
-    S = np.zeros((nx, ny))#,np.float128)
-    dSdx = np.zeros((nx-1, ny))#,np.float128)
-    dSdy = np.zeros((nx, ny-1))#,np.float128)
-    Snorm = np.zeros((nx-1, ny-1))#,np.float128)
-    D = np.zeros((nx-1, ny-1))#,np.float128)
-    qx = np.zeros((nx-1, ny-2))#,np.float128)
-    qy = np.zeros((nx-2, ny-1))#,np.float128)
-    H = np.zeros((nx, ny))#,np.float128)
-    M = np.zeros((nx, ny))#,np.float128)
-    H0 = np.zeros((nx, ny))#,np.float128)
+    S = np.zeros((nx, ny))
+    dSdx = np.zeros((nx-1, ny))
+    dSdy = np.zeros((nx, ny-1))
+    Snorm = np.zeros((nx-1, ny-1))
+    D = np.zeros((nx-1, ny-1))
+    qx = np.zeros((nx-1, ny-2))
+    qy = np.zeros((nx-2, ny-1))
+    H = np.zeros((nx, ny))
+    M = np.zeros((nx, ny))
+    H0 = np.zeros((nx, ny))
     # time loop
     for it in range(int(nt)):
         np.copyto(H0, H)
@@ -40,16 +42,14 @@ def solver(m_balance_slope, m_balance_limiter, mean_height, data):
         H[1:-1, 1:-1] = np.maximum(H[1:-1, 1:-1] + dt * (np.diff(qx, axis=0) + np.diff(qy, axis=1) + M[1:-1, 1:-1]), 0.0)
         if it % nout == 0:
             # error checking
-            #print(H[2,3:10])
             err = np.max(np.abs(H - H0))
             print(f"it = {it}, err = {err:.3e}")
             if err < ϵ:
                 break
     return H, S
-"""
-    visualise(H, S, B, xc, yc)
 
-Visualise bedrock and ice elevation.
+""" visualise
+Plot 3D surface
 """
 def visualise(H, S, B, xc, yc):
     S_v = np.copy(S)
