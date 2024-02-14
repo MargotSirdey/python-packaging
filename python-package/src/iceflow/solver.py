@@ -81,6 +81,8 @@ def visualise(H, S, B, xc, yc):
 
 
 def default_example():
+    f = open("test.txt", "r")
+    print(f.read()) 
     resol = 256
     domain_size_y = 250000 # domain size [m]
     domain_size_x = 250000 # domain size [m]

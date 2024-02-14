@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "iceflow"
-version = "0.0.1"
+version = "0.0.4"
 dependencies = ["numpy","matplotlib"]
 authors = [{ name="Pepito", email="pepito@unil.ch" }]
 description = "Non-linear ice flow solver"
@@ -13,3 +13,12 @@ requires-python = ">=3.8"
 
 [project.scripts]
 default_example = "iceflow:default_example"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+iceflow = ["test.txt"]
