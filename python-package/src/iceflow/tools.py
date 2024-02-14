@@ -9,9 +9,9 @@ class Data:
         self.dx = lx / nx
         self.dy = ly / ny
         self.xc = np.arange(-lx / 2 + self.dx / 2,
-                    lx / 2 - self.dx / 2, self.dx)
+                            lx / 2 - self.dx / 2, self.dx)
         self.yc = np.arange(-ly / 2 + self.dy / 2,
-                    ly / 2 - self.dy / 2, self.dy)
+                            ly / 2 - self.dy / 2, self.dy)
         self.Xc, self.Yc = np.meshgrid(self.xc, self.yc)
 
 
@@ -19,7 +19,7 @@ class Data:
 def bedrock_elevation(data, mean_height):
     result = mean_height * np.exp(-data.Xc ** 2 / 1e10 - data.Yc ** 2 / 1e9)
     result += mean_height * np.exp(-data.Xc ** 2 / 1e9 -
-                    (data.Yc - data.ly / 8) ** 2 / 1e10)
+                                   (data.Yc - data.ly / 8) ** 2 / 1e10)
     return result
 
 

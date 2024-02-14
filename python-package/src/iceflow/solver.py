@@ -42,7 +42,7 @@ def solver(m_balance_slope, m_balance_limiter, mean_height, data):
         qx[:] = tools.avy(D) * np.diff(S[:, 1:-1], axis=0) / data.dx
         qy[:] = tools.avx(D) * np.diff(S[1:-1, :], axis=1) / data.dy
         H[1:-1, 1:-1] = np.maximum(H[1:-1, 1:-1] + dt * (np.diff(qx, axis=0) +
-                                    np.diff(qy, axis=1) + M[1:-1, 1:-1]), 0.0)
+                                   np.diff(qy, axis=1) + M[1:-1, 1:-1]), 0.0)
         if it % nout == 0:
             # error checking
             err = np.max(np.abs(H - H0))
@@ -68,13 +68,13 @@ def visualise(H, S, B, xc, yc):
     xic, yic = np.meshgrid(xc, yc)
     axs.set_box_aspect((4, 4, 1))
     axs.view_init(azim=25)
-    # p1 = axs.plot_surface(xic / 1e3, yic / 1e3, B, rstride=1, cstride=1,
-    # cmap='viridis', edgecolor='none')
-    # p2 = axs.plot_surface(xic / 1e3, yic / 1e3, S_v, rstride=1, cstride=1,
-    # cmap='viridis', edgecolor='none')
+    p1 = axs.plot_surface(xic / 1e3, yic / 1e3, B, rstride=1, cstride=1,
+                          cmap='viridis', edgecolor='none')
+    p2 = axs.plot_surface(xic / 1e3, yic / 1e3, S_v, rstride=1, cstride=1,
+                          cmap='viridis', edgecolor='none')
     norm = mpl.colors.Normalize(vmin=0, vmax=6000)
     fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap='viridis'),
-    ax=axs, orientation='vertical', label='H ice [m]', shrink=0.5)
+                 ax=axs, orientation='vertical', label='H ice [m]', shrink=0.5)
 
     plt.tight_layout()
     plt.show()
