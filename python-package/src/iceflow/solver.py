@@ -78,3 +78,15 @@ def visualise(H, S, B, xc, yc):
 
     plt.tight_layout()
     plt.show()
+
+
+def default_example():
+    resol = 256
+    domain_size_y = 250000 # domain size [m]
+    domain_size_x = 250000 # domain size [m]
+    m_balance_slope = 0.01
+    m_balance_limiter = 2.0
+    mean_height = 3500 # mean height [m]
+    data = tools.Data(resol, domain_size_x,resol, domain_size_y)
+    H, S = solver(m_balance_slope, m_balance_limiter, mean_height, data)
+    visualise(H, S, tools.bedrock_elevation(data, mean_height), data.xc, data.yc)
