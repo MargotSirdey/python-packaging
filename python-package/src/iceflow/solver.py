@@ -6,6 +6,8 @@ from . import tools
 """
 Iterative solver
 """
+
+
 def solver(m_balance_slope, m_balance_limiter, mean_height, data):
     # physics
     ρg = 910.0 * 9.81    # ice density x gravity
@@ -18,8 +20,8 @@ def solver(m_balance_slope, m_balance_limiter, mean_height, data):
     nout = 1e3            # visu and error checking interval
     ϵ = 1e-4             # steady state tolerance
     # preprocess
-    a1 = 1.9e-24 * pow(ρg,3) * 31557600
-    a2 = 5.7e-20 * pow(ρg,3) * 31557600
+    a1 = 1.9e-24 * pow(ρg, 3) * 31557600
+    a2 = 5.7e-20 * pow(ρg, 3) * 31557600
     # initialise
     S = np.zeros((nx, ny))
     dSdx = np.zeros((nx-1, ny))
@@ -39,7 +41,8 @@ def solver(m_balance_slope, m_balance_limiter, mean_height, data):
         tools.compute_D(D, H, S, dSdx, dSdy, Snorm, a1, a2, data.dx, data.dy)
         qx[:] = tools.avy(D) * np.diff(S[:, 1:-1], axis=0) / data.dx
         qy[:] = tools.avx(D) * np.diff(S[1:-1, :], axis=1) / data.dy
-        H[1:-1, 1:-1] = np.maximum(H[1:-1, 1:-1] + dt * (np.diff(qx, axis=0) + np.diff(qy, axis=1) + M[1:-1, 1:-1]), 0.0)
+        H[1:-1, 1:-1] = np.maximum(H[1:-1, 1:-1] + dt * (np.diff(qx, axis=0) +
+                                    np.diff(qy, axis=1) + M[1:-1, 1:-1]), 0.0)
         if it % nout == 0:
             # error checking
             err = np.max(np.abs(H - H0))
@@ -48,9 +51,12 @@ def solver(m_balance_slope, m_balance_limiter, mean_height, data):
                 break
     return H, S
 
+
 """ visualise
 Plot 3D surface
 """
+
+
 def visualise(H, S, B, xc, yc):
     S_v = np.copy(S)
     S_v[H <= 0.01] = np.nan
@@ -62,14 +68,13 @@ def visualise(H, S, B, xc, yc):
     xic, yic = np.meshgrid(xc, yc)
     axs.set_box_aspect((4, 4, 1))
     axs.view_init(azim=25)
-    p1 = axs.plot_surface(xic / 1e3, yic / 1e3, B, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
-    p2 = axs.plot_surface(xic / 1e3, yic / 1e3, S_v, rstride=1, cstride=1, cmap='viridis', edgecolor='none')
+    # p1 = axs.plot_surface(xic / 1e3, yic / 1e3, B, rstride=1, cstride=1,
+    # cmap='viridis', edgecolor='none')
+    # p2 = axs.plot_surface(xic / 1e3, yic / 1e3, S_v, rstride=1, cstride=1,
+    # cmap='viridis', edgecolor='none')
     norm = mpl.colors.Normalize(vmin=0, vmax=6000)
     fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap='viridis'),
-             ax=axs, orientation='vertical', label='H ice [m]', shrink=0.5)
+    ax=axs, orientation='vertical', label='H ice [m]', shrink=0.5)
 
     plt.tight_layout()
     plt.show()
-
-
-
