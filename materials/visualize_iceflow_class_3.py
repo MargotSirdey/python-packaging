@@ -110,7 +110,7 @@ class Physics:
         self.m_balance_slope = m_b_slope
         self.m_balance = m_b
         self.ρg = ρg
-        self.B = bedrock_elevation(data, mean_height)
+        self.B = bedrock_elevation(data, self.mean_height)
         self.ELA = equilibrium_line_altitude(data)
 
 
@@ -125,7 +125,7 @@ m_b = 2.0
 physics = Physics(m_h, m_b_slope, m_b, ρg, data)
 
 # numerics
-nx, ny = B.shape      # numerical grid resolution
+nx, ny = physics.B.shape      # numerical grid resolution
 nt = 1e4              # number of time steps
 nout = 1e3            # visu and error checking interval
 ϵ = 1e-4             # steady state tolerance
@@ -135,4 +135,3 @@ S, H = solver(nx, ny, nt, nout, ϵ, dt, physics, data)
 
 
 visualise(S, H, data)
-
