@@ -70,29 +70,3 @@ def visualise(data, S, H, B):
                  ax=axs, orientation='vertical', label='H ice [m]', shrink=0.5)
     plt.tight_layout()
     plt.show()
-
-
-def default_example():
-    f = open("test.txt", "r")
-    print(f.read()) 
-    resol = 256
-    domainsizex = 250000
-    domainsizey = 200000  # domain size [m]
-    resol = 256
-    data = tools.Data(resol, domainsizex, resol, domainsizey)
-    m_h = 3500
-    m_b_slope = 0.01
-    m_b = 2.0
-    ρg = 910.0 * 9.81
-    physics = tools.Physics(m_h, m_b_slope, m_b, ρg, data)
-
-    # numerics
-    nx, ny = physics.B.shape      # numerical grid resolution
-    nt = 1e4              # number of time steps
-    nout = 1e3            # visu and error checking interval
-    ϵ = 1e-4             # steady state tolerance
-    dt = 0.1             # time step [yr]
-
-    S, H = solver(nx, ny, nt, nout, ϵ, dt, physics, data)
-
-    visualise(data, S, H, physics.B)

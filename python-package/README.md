@@ -1,18 +1,27 @@
-# Installation
-Create a python virtual environment and install the package with ```pip install -e .```
-
-# Run the code
+Run the code 
 
 ```python
 import iceflow
 
 resol = 256
-domain_size_y = 250000 # domain size [m]
-domain_size_x = 250000 # domain size [m]
-m_balance_slope = 0.01
-m_balance_limiter = 2.0
-mean_height = 3500 # mean height [m]
-data = iceflow.tools.Data(resol, domain_size_x,resol, domain_size_y)
-H, S = iceflow.solver(m_balance_slope, m_balance_limiter, mean_height, data)
-iceflow.visualise(H, S, iceflow.tools.bedrock_elevation(data, mean_height), data.xc, data.yc)
+domainsizex = 250000
+domainsizey = 200000  # domain size [m]
+resol = 256
+data = iceflow.tools.Data(resol, domainsizex, resol, domainsizey)
+m_h = 3500
+m_b_slope = 0.01
+m_b = 2.0
+ρg = 910.0 * 9.81
+physics = iceflow.tools.Physics(m_h, m_b_slope, m_b, ρg, data)
+
+# numerics
+nx, ny = physics.B.shape      # numerical grid resolution
+nt = 1e4              # number of time steps
+nout = 1e3            # visu and error checking interval
+ϵ = 1e-4             # steady state tolerance
+dt = 0.1             # time step [yr]
+
+S, H = iceflow.solver(nx, ny, nt, nout, ϵ, dt, physics, data)
+
+iceflow.visualise(data, S, H, physics.B)
 ```
