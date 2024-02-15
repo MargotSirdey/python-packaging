@@ -1,1 +1,1 @@
-from .solver import solver, visualise, default_example
+from .solver import solver, visualise
