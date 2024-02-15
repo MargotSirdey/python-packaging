@@ -83,8 +83,8 @@ def visualise(data, S, H, B):
 
 def solver(nx, ny, nt, nout, ϵ, dt, physics, data):
     # preprocess
-    a1 = 1.9e-24 * pow(physics.ρg,3) * 31557600
-    a2 = 5.7e-20 * pow(physics.ρg,3) * 31557600
+    a1 = 1.9e-24 * pow(physics.ρg, 3) * 31557600
+    a2 = 5.7e-20 * pow(physics.ρg, 3) * 31557600
 
     # initialize
     S = np.zeros((nx, ny))
@@ -102,11 +102,13 @@ def solver(nx, ny, nt, nout, ϵ, dt, physics, data):
     for it in range(int(nt)):
         np.copyto(H0, H)
         S = physics.B + H
-        M = np.minimum(physics.m_balance_slope * (S - physics.ELA), physics.m_balance)
+        M = np.minimum(physics.m_balance_slope *
+                       (S - physics.ELA), physics.m_balance)
         compute_D(D, H, S, dSdx, dSdy, Snorm, a1, a2, data)
         qx[:] = avy(D) * np.diff(S[:, 1:-1], axis=0) / data.dx
         qy[:] = avx(D) * np.diff(S[1:-1, :], axis=1) / data.dy
-        H[1:-1, 1:-1] = np.maximum(H[1:-1, 1:-1] + dt * (np.diff(qx, axis=0) + np.diff(qy, axis=1) + M[1:-1, 1:-1]), 0.0)
+        H[1:-1, 1:-1] = np.maximum(H[1:-1, 1:-1] + dt * (np.diff(qx, axis=0)
+                                   + np.diff(qy, axis=1) + M[1:-1, 1:-1]), 0.0)
         if it % nout == 0:
             # error checking
             err = np.max(np.abs(H - H0))
