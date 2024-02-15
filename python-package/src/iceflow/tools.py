@@ -14,6 +14,15 @@ class Data:
                             ly / 2 - self.dy / 2, self.dy)
         self.Xc, self.Yc = np.meshgrid(self.xc, self.yc)
 
+class Physics:
+    def __init__(self, m_h, m_b_slope, m_b, ρg, data):
+        self.mean_height = m_h
+        self.m_balance_slope = m_b_slope
+        self.m_balance = m_b
+        self.ρg = ρg
+        self.B = bedrock_elevation(data, self.mean_height)
+        self.ELA = equilibrium_line_altitude(data)
+
 
 # Generate the bedrock elevation for a given grid resolutions `nx, ny`
 def bedrock_elevation(data, mean_height):
@@ -24,7 +33,7 @@ def bedrock_elevation(data, mean_height):
 
 
 # equilibrium line altitude `ELA` data for a given grid resolutions `nx, ny`
-def eq_line_altitude(data):
+def equilibrium_line_altitude(data):
     return 2150 + 900 * np.arctan(data.Yc / data.ly)
 
 

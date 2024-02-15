@@ -8,21 +8,12 @@ Iterative solver
 """
 
 
-def solver(m_balance_slope, m_balance_limiter, mean_height, data):
-    # physics
-    ρg = 910.0 * 9.81    # ice density x gravity
-    dt = 0.1             # time step [yr]
-    # numerics
-    B = tools.bedrock_elevation(data, mean_height)
-    ELA = tools.eq_line_altitude(data)
-    nx, ny = B.shape      # numerical grid resolution
-    nt = 1e4              # number of time steps
-    nout = 1e3            # visu and error checking interval
-    ϵ = 1e-4             # steady state tolerance
+def solver(nx, ny, nt, nout, ϵ, dt, physics, data):
     # preprocess
-    a1 = 1.9e-24 * pow(ρg, 3) * 31557600
-    a2 = 5.7e-20 * pow(ρg, 3) * 31557600
-    # initialise
+    a1 = 1.9e-24 * pow(physics.ρg, 3) * 31557600
+    a2 = 5.7e-20 * pow(physics.ρg, 3) * 31557600
+
+    # initialize
     S = np.zeros((nx, ny))
     dSdx = np.zeros((nx-1, ny))
     dSdy = np.zeros((nx, ny-1))
@@ -33,23 +24,25 @@ def solver(m_balance_slope, m_balance_limiter, mean_height, data):
     H = np.zeros((nx, ny))
     M = np.zeros((nx, ny))
     H0 = np.zeros((nx, ny))
+
     # time loop
     for it in range(int(nt)):
         np.copyto(H0, H)
-        S = B + H
-        M = np.minimum(m_balance_slope * (S - ELA), m_balance_limiter)
+        S = physics.B + H
+        M = np.minimum(physics.m_balance_slope *
+                       (S - physics.ELA), physics.m_balance)
         tools.compute_D(D, H, S, dSdx, dSdy, Snorm, a1, a2, data.dx, data.dy)
         qx[:] = tools.avy(D) * np.diff(S[:, 1:-1], axis=0) / data.dx
         qy[:] = tools.avx(D) * np.diff(S[1:-1, :], axis=1) / data.dy
-        H[1:-1, 1:-1] = np.maximum(H[1:-1, 1:-1] + dt * (np.diff(qx, axis=0) +
-                                   np.diff(qy, axis=1) + M[1:-1, 1:-1]), 0.0)
+        H[1:-1, 1:-1] = np.maximum(H[1:-1, 1:-1] + dt * (np.diff(qx, axis=0)
+                                   + np.diff(qy, axis=1) + M[1:-1, 1:-1]), 0.0)
         if it % nout == 0:
             # error checking
             err = np.max(np.abs(H - H0))
             print(f"it = {it}, err = {err:.3e}")
             if err < ϵ:
                 break
-    return H, S
+    return S, H
 
 
 """ visualise
@@ -57,15 +50,15 @@ Plot 3D surface
 """
 
 
-def visualise(H, S, B, xc, yc):
+def visualise(data, S, H, B):
     S_v = np.copy(S)
     S_v[H <= 0.01] = np.nan
-    fig = plt.figure(figsize=(100, 45))
+    fig = plt.figure(figsize=(20, 12))
     axs = fig.add_subplot(121, projection='3d')
     axs.set_xlabel("x [km]")
     axs.set_ylabel("y [km]")
     axs.set_zlabel("elevation [m]")
-    xic, yic = np.meshgrid(xc, yc)
+    xic, yic = np.meshgrid(data.xc, data.yc)
     axs.set_box_aspect((4, 4, 1))
     axs.view_init(azim=25)
     p1 = axs.plot_surface(xic / 1e3, yic / 1e3, B, rstride=1, cstride=1,
@@ -75,7 +68,6 @@ def visualise(H, S, B, xc, yc):
     norm = mpl.colors.Normalize(vmin=0, vmax=6000)
     fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap='viridis'),
                  ax=axs, orientation='vertical', label='H ice [m]', shrink=0.5)
-
     plt.tight_layout()
     plt.show()
 
@@ -84,11 +76,23 @@ def default_example():
     f = open("test.txt", "r")
     print(f.read()) 
     resol = 256
-    domain_size_y = 250000 # domain size [m]
-    domain_size_x = 250000 # domain size [m]
-    m_balance_slope = 0.01
-    m_balance_limiter = 2.0
-    mean_height = 3500 # mean height [m]
-    data = tools.Data(resol, domain_size_x,resol, domain_size_y)
-    H, S = solver(m_balance_slope, m_balance_limiter, mean_height, data)
-    visualise(H, S, tools.bedrock_elevation(data, mean_height), data.xc, data.yc)
+    domainsizex = 250000
+    domainsizey = 200000  # domain size [m]
+    resol = 256
+    data = tools.Data(resol, domainsizex, resol, domainsizey)
+    m_h = 3500
+    m_b_slope = 0.01
+    m_b = 2.0
+    ρg = 910.0 * 9.81
+    physics = tools.Physics(m_h, m_b_slope, m_b, ρg, data)
+
+    # numerics
+    nx, ny = physics.B.shape      # numerical grid resolution
+    nt = 1e4              # number of time steps
+    nout = 1e3            # visu and error checking interval
+    ϵ = 1e-4             # steady state tolerance
+    dt = 0.1             # time step [yr]
+
+    S, H = solver(nx, ny, nt, nout, ϵ, dt, physics, data)
+
+    visualise(data, S, H, physics.B)
