@@ -17,6 +17,16 @@ class Data:
         self.Xc, self.Yc = np.meshgrid(self.xc, self.yc)
 
 
+class Physics:
+    def __init__(self, m_h, m_b_slope, m_b, ρg, data):
+        self.mean_height = m_h
+        self.m_balance_slope = m_b_slope
+        self.m_balance = m_b
+        self.ρg = ρg
+        self.B = bedrock_elevation(data, self.mean_height)
+        self.ELA = equilibrium_line_altitude(data)
+
+
 def bedrock_elevation(data, mean_height):
     B = mean_height * np.exp(-data.Xc**2 / 1e10 - data.Yc**2 / 1e9)
     B += mean_height * np.exp(-data.Xc**2 / 1e9 -
@@ -71,21 +81,12 @@ def visualise(data, S, H, B):
     plt.show()
 
 
-def solver(m_balance_slope, m_balance_limiter, B, data):
-    ρg = 910.0 * 9.81    # ice density x gravity
-    dt = 0.1             # time step [yr]
-    ELA = equilibrium_line_altitude(data)
-    ρg = 910.0 * 9.81    # ice density x gravity
-    dt = 0.1             # time step [yr]
-    # numerics
-    nx, ny = B.shape      # numerical grid resolution
-    nt = 1e4              # number of time steps
-    nout = 1e3            # visu and error checking interval
-    ϵ = 1e-4             # steady state tolerance
+def solver(nx, ny, nt, nout, ϵ, dt, physics, data):
     # preprocess
-    a1 = 1.9e-24 * pow(ρg, 3) * 31557600
-    a2 = 5.7e-20 * pow(ρg, 3) * 31557600
-    # initialise
+    a1 = 1.9e-24 * pow(physics.ρg,3) * 31557600
+    a2 = 5.7e-20 * pow(physics.ρg,3) * 31557600
+
+    # initialize
     S = np.zeros((nx, ny))
     dSdx = np.zeros((nx-1, ny))
     dSdy = np.zeros((nx, ny-1))
@@ -96,34 +97,43 @@ def solver(m_balance_slope, m_balance_limiter, B, data):
     H = np.zeros((nx, ny))
     M = np.zeros((nx, ny))
     H0 = np.zeros((nx, ny))
+
     # time loop
     for it in range(int(nt)):
         np.copyto(H0, H)
-        S = B + H
-        M = np.minimum(m_balance_slope * (S - ELA), m_balance_limiter)
+        S = physics.B + H
+        M = np.minimum(physics.m_balance_slope * (S - physics.ELA), physics.m_balance)
         compute_D(D, H, S, dSdx, dSdy, Snorm, a1, a2, data)
         qx[:] = avy(D) * np.diff(S[:, 1:-1], axis=0) / data.dx
         qy[:] = avx(D) * np.diff(S[1:-1, :], axis=1) / data.dy
-        H[1:-1, 1:-1] = np.maximum(H[1:-1, 1:-1] + dt * (np.diff(qx, axis=0)
-                                   + np.diff(qy, axis=1) + M[1:-1, 1:-1]), 0.0)
+        H[1:-1, 1:-1] = np.maximum(H[1:-1, 1:-1] + dt * (np.diff(qx, axis=0) + np.diff(qy, axis=1) + M[1:-1, 1:-1]), 0.0)
         if it % nout == 0:
             # error checking
             err = np.max(np.abs(H - H0))
             print(f"it = {it}, err = {err:.3e}")
             if err < ϵ:
                 break
-
-    return H, S
+    return S, H
 
 
 if (__name__ == "__main__"):
+    domainsizex = 250000
+    domainsizey = 200000  # domain size [m]
     resol = 256
-    domain_size_x = 250000
-    domain_size_y = 200000  # domain size [m]
-    mean_height = 3500            # mean height [m]
-    m_balance_slope = 0.01            # mass-balance slope (data)
-    m_balance_limiter = 2.0             # mass-balance limiter
-    data = Data(resol, domain_size_x, resol, domain_size_y)
-    B = bedrock_elevation(data, mean_height)
-    H, S = solver(m_balance_slope, m_balance_limiter, B, data)
-    visualise(data, S, H, B)
+    data = Data(resol, domainsizex, resol, domainsizey)
+    m_h = 3500
+    m_b_slope = 0.01
+    m_b = 2.0
+    ρg = 910.0 * 9.81
+    physics = Physics(m_h, m_b_slope, m_b, ρg, data)
+
+    # numerics
+    nx, ny = physics.B.shape      # numerical grid resolution
+    nt = 1e4              # number of time steps
+    nout = 1e3            # visu and error checking interval
+    ϵ = 1e-4             # steady state tolerance
+    dt = 0.1             # time step [yr]
+
+    S, H = solver(nx, ny, nt, nout, ϵ, dt, physics, data)
+
+    visualise(data, S, H, physics.B)
