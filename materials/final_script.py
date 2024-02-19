@@ -70,9 +70,9 @@ def visualise(data, S, H, B):
     xic, yic = np.meshgrid(data.xc, data.yc)
     axs.set_box_aspect((4, 4, 1))
     axs.view_init(azim=25)
-    p1 = axs.plot_surface(xic / 1e3, yic / 1e3, B, rstride=1, cstride=1,
+    axs.plot_surface(xic / 1e3, yic / 1e3, B, rstride=1, cstride=1,
                           cmap='viridis', edgecolor='none')
-    p2 = axs.plot_surface(xic / 1e3, yic / 1e3, S_v, rstride=1, cstride=1,
+    axs.plot_surface(xic / 1e3, yic / 1e3, S_v, rstride=1, cstride=1,
                           cmap='viridis', edgecolor='none')
     norm = mpl.colors.Normalize(vmin=0, vmax=6000)
     fig.colorbar(mpl.cm.ScalarMappable(norm=norm, cmap='viridis'),
