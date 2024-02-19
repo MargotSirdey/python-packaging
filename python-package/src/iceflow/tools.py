@@ -49,7 +49,6 @@ def avy(A):
     return 0.5 * (A[:, :-1] + A[:, 1:])
 
 
-# TODO, some parameter are not used
 def compute_D(D, H, S, dSdx, dSdy, Snorm, a1, a2, dx, dy):
     dSdx = np.diff(S, axis=0) / dx
     dSdy = np.diff(S, axis=1) / dy
