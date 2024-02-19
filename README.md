@@ -1,5 +1,5 @@
 # About
-This repository contains a Python packaging course designed for UNIL. The course takes place on the 20th of February, 2024.
+This repository contains a Python packaging course designed for some UNIL courses. The course takes place on the 20th of February, 2024.
 
 > **Note:** The Julia packaging course is available here: [julia-packaging](https://github.com/Unil-SGC/julia-packaging).
 
