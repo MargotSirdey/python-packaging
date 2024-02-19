@@ -1,9 +1,15 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[2]:
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+
+
+# In[3]:
 
 
 def av(A):
@@ -20,6 +26,9 @@ def compute_D(D, H, S, dSdx, dSdy, Snorm, a1, a2, dx, dy):
     dSdy = np.diff(S, axis=1) / dy
     Snorm = np.sqrt(avy(dSdx)**2 + avx(dSdy)**2)
     D[:] = ((a1 * av(H)**5) + (a2 * av(H)**3)) * Snorm**2
+
+
+# In[4]:
 
 
 def solver(nx, ny, nt, nout, ϵ, dt, physics, data):
@@ -57,7 +66,10 @@ def solver(nx, ny, nt, nout, ϵ, dt, physics, data):
     return S, H
 
 
-def visualise(S, H, data):
+# In[5]:
+
+
+def visualise(data, S, H, B):
     # Visualize bedrock and ice elevation
     S_v = np.copy(S)
     S_v[H <= 0.01] = np.nan
@@ -76,6 +88,9 @@ def visualise(S, H, data):
              ax=axs, orientation='vertical', label='H ice [m]', shrink=0.5)
     plt.tight_layout()
     plt.show()
+
+
+# In[6]:
 
 
 # Create data : generate the bedrock elevation `B` and the equilibrium line altitude `ELA` data for a given grid resolutions `nx, ny`.
@@ -114,6 +129,9 @@ class Physics:
         self.ELA = equilibrium_line_altitude(data)
 
 
+# In[8]:
+
+
 domainsizex = 250000
 domainsizey = 200000  # domain size [m]
 resol = 256
@@ -134,4 +152,8 @@ dt = 0.1             # time step [yr]
 S, H = solver(nx, ny, nt, nout, ϵ, dt, physics, data)
 
 
-visualise(S, H, data)
+# In[ ]:
+
+
+visualise(data, S, H, physics.B)
+
