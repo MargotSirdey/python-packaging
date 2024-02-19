@@ -46,4 +46,12 @@ where
 ### Create your own package
 
 Follow the steps in the [main presentation](materials/packaging_python.ipynb).
+This presentation has some introduction slides to explain on what one should focus on prior to create a Python package.
 
+Some examples:
+
+- Does it make sense to package your code?
+
+- Is your code high quality enough? (documentation, license, well-designed...)
+
+- Should data be included or accessible out of the code?
