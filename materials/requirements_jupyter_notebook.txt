@@ -13,6 +13,8 @@ certifi==2023.11.17
 cffi==1.16.0
 charset-normalizer==3.3.2
 comm==0.2.1
+contourpy==1.2.0
+cycler==0.12.1
 debugpy==1.8.0
 decorator==5.1.1
 defusedxml==0.7.1
@@ -20,7 +22,10 @@ entrypoints==0.4
 exceptiongroup==1.2.0
 executing==2.0.1
 fastjsonschema==2.19.1
+flake8==7.0.0
+fonttools==4.48.1
 fqdn==1.5.1
+-e git+ssh://git@github.com/MargotSirdey/python-packaging.git@00f5d106d28c2d29d010551dedfe14ea480b9d65#egg=iceflow&subdirectory=python-package
 idna==3.6
 ipykernel==6.29.0
 ipython==8.20.0
@@ -45,8 +50,11 @@ jupyter_server_ydoc==0.6.1
 jupyterlab==3.6.0
 jupyterlab_pygments==0.3.0
 jupyterlab_server==2.25.2
+kiwisolver==1.4.5
 MarkupSafe==2.1.4
+matplotlib==3.8.2
 matplotlib-inline==0.1.6
+mccabe==0.7.0
 mistune==3.0.2
 nbclassic==1.0.0
 nbclient==0.9.0
@@ -55,19 +63,24 @@ nbformat==5.9.2
 nest-asyncio==1.6.0
 notebook==6.5.6
 notebook_shim==0.2.3
+numpy==1.26.4
 overrides==7.6.0
 packaging==23.2
 pandocfilters==1.5.1
 parso==0.8.3
 pexpect==4.9.0
+pillow==10.2.0
 platformdirs==4.1.0
 prometheus-client==0.19.0
 prompt-toolkit==3.0.43
 psutil==5.9.8
 ptyprocess==0.7.0
 pure-eval==0.2.2
+pycodestyle==2.11.1
 pycparser==2.21
+pyflakes==3.2.0
 Pygments==2.17.2
+pyparsing==3.1.1
 python-dateutil==2.8.2
 python-json-logger==2.0.7
 PyYAML==6.0.1
